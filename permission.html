@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Camera and Microphone Permission Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+      color: #202124;
+    }
+    #status {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <h2>Camera + Microphone Test</h2>
+  <p>This page requests the browser's actual media permissions.</p>
+  <p id="status">Preparing permission request...</p>
+
+  <script>
+    const status = document.getElementById("status");
+
+    async function requestPermissions() {
+      try {
+        status.textContent = "Requesting camera and microphone...";
+
+        const stream =
+          await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+          });
+
+        status.textContent =
+          "Permission granted. Media tracks will now stop.";
+
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        status.textContent =
+          error.name + ": " + error.message;
+      }
+    }
+
+    requestPermissions();
+  </script>
+</body>
+</html>
